@@ -1,5 +1,7 @@
 package lulukprojects.musicaltuner.recognition
 
+import org.apache.commons.math3.analysis.interpolation.SplineInterpolator
+import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator
 import kotlin.math.PI
 import kotlin.math.cos
 import org.apache.commons.math3.transform.DftNormalization
@@ -8,26 +10,25 @@ import org.apache.commons.math3.transform.TransformType
 import kotlin.math.pow
 
 class NoteRecogniser {
-    private val powerSpectrumNoise = 10000000
 
-    private var samplingRate : Int
+    private var recordingConf: RecordingConfiguration
     private var samplingResults : MutableList<Short>
-
-    constructor(samplingResults  : MutableList<Short>, samplingRate : Int) {
+    private var interpolator : UnivariateInterpolator =  SplineInterpolator()
+    constructor(samplingResults  : MutableList<Short>, recordingConf: RecordingConfiguration) {
         this.samplingResults = samplingResults
-        this.samplingRate = samplingRate
+        this.recordingConf = recordingConf
     }
 
     fun getNote() : Double {
         var ret : Double
         while (true) {
-            if(samplingResults.size >= samplingRate) {
+            if(samplingResults.size >= recordingConf.samplingCut) {
                 val data =  samplingResults.toTypedArray().clone()
                 samplingResults.clear()
                 var audioPowerSpectrum = getSignalPowerSpectrum(data)
                 val detectedSignal = getNoteSignalRawExistence(audioPowerSpectrum)
                 if (detectedSignal != 0) {
-                    ret = getNoteFrequency(audioPowerSpectrum, detectedSignal).toDouble()
+                    ret = getNoteFrequency(audioPowerSpectrum, detectedSignal)
                     break
                 }
             }
@@ -40,18 +41,28 @@ class NoteRecogniser {
 
     private fun getSignalPowerSpectrum(audioSamplingDataResults: Array<Short>) : DoubleArray
     {
-        var ret = DoubleArray(samplingRate / 2)
+        var ret = DoubleArray(recordingConf.samplingRate / 2)
         val fftTransformer = FastFourierTransformer(DftNormalization.STANDARD)
-        if (samplingRate < audioSamplingDataResults.size) {
-            var data = audioSamplingDataResults.copyOfRange(0, samplingRate).mapIndexedNotNull{ index, x -> x.toDouble() * getHannWindow(
-                index,
-                samplingRate
-            )}.toDoubleArray()
-            val fftResults = fftTransformer.transform(data, TransformType.FORWARD)
-            for (i in 0 until samplingRate/2) {
-                ret[i] += fftResults[i].argument.pow(2) + fftResults[i].imaginary.pow(2)
-            }
+
+        var tmpdata : MutableList<Short>
+        if (recordingConf.samplingRate < audioSamplingDataResults.size) {
+            tmpdata = audioSamplingDataResults.copyOfRange(0, recordingConf.samplingRate).toMutableList()
         }
+        else{
+            tmpdata = audioSamplingDataResults.clone().toMutableList()
+            tmpdata.addAll(ShortArray(recordingConf.samplingRate - audioSamplingDataResults.size).toTypedArray())
+        }
+
+        var data = tmpdata.mapIndexedNotNull{ index, x -> x.toDouble() * getHannWindow(
+            index,
+            recordingConf.samplingRate
+        )}.toDoubleArray()
+
+        val fftResults = fftTransformer.transform(data, TransformType.FORWARD)
+        for (i in 0 until recordingConf.samplingRate / 2) {
+            ret[i] += fftResults[i].argument.pow(2) + fftResults[i].imaginary.pow(2)
+        }
+
         return ret
     }
 
@@ -71,7 +82,7 @@ class NoteRecogniser {
         val searchPower = 10
         for (i in minSearchIndex until maxSearchIndex){
 
-            var searchValue : Double = if(powerSpectrum[i] > powerSpectrumNoise) powerSpectrum[i] else 0.0
+            var searchValue : Double = if(powerSpectrum[i] > recordingConf.powerSpectrumNoise) powerSpectrum[i] else 0.0
             if(searchValue != 0.0) {
                 if(maxValue == 0.0) {
                     maxValue = searchValue
@@ -88,7 +99,7 @@ class NoteRecogniser {
         return 0
     }
 
-    private fun getNoteFrequency(powerSpectrum: DoubleArray, signalIndex : Int) : Int
+    private fun getNoteFrequency(powerSpectrum: DoubleArray, signalIndex : Int) : Double
     {
         var minSearchIndex = signalIndex
         var maxSearchIndex = signalIndex
@@ -100,9 +111,26 @@ class NoteRecogniser {
         }
 
         val searchSubset = powerSpectrum.copyOfRange(minSearchIndex,maxSearchIndex)
-        val max = searchSubset.max()
 
-        return searchSubset.indexOfFirst { x -> x == max } + minSearchIndex
+
+        //Interpolation to get max value
+        var interpolationFunction = interpolator.interpolate(searchSubset.indices.map { i -> i.toDouble() }.toDoubleArray(), searchSubset)
+
+        var maxFrequency : Double = 0.0
+        var maxValue : Double = 0.0
+        val step = 0.1
+
+        for (i in 0..((searchSubset.size - 1) * (1/step).toInt())) {
+            var frequency = i.toDouble() * step
+            var value = interpolationFunction.value(frequency)
+            if(value > maxValue){
+                maxValue = value
+                maxFrequency = frequency
+            }
+        }
+
+
+        return maxFrequency + minSearchIndex
     }
 
     private fun getHannWindow(n: Int, N: Int) : Double {

@@ -1,17 +1,16 @@
 package lulukprojects.musicaltuner
 
 import android.Manifest
-import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioRecord
-import android.media.MediaRecorder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_tuner.*
 import lulukprojects.musicaltuner.recognition.NoteRecogniser
 import lulukprojects.musicaltuner.recognition.NoteRecorder
-import lulukprojects.musicaltuner.recognition.RecrodingConfiguration
+import lulukprojects.musicaltuner.recognition.RecordingConfiguration
 import lulukprojects.musicaltuner.requester.PermissionRequester
+import lulukprojects.musicaltuner.view.container.SoundNote
 import java.util.*
 
 class TunerActivity : AppCompatActivity() {
@@ -48,18 +47,18 @@ class TunerActivity : AppCompatActivity() {
             audioManager?.getProperty(AudioManager.PROPERTY_SUPPORT_AUDIO_SOURCE_UNPROCESSED)
 
             // Create recorder
-            val recordingConfig = RecrodingConfiguration(recordingRate)
+            val recordingConfig = RecordingConfiguration(recordingRate)
             val bufferSize = AudioRecord.getMinBufferSize(recordingConfig.samplingRate, recordingConfig.channelConfig, recordingConfig.audioFormat)
             val audioRecorder = AudioRecord(recordingConfig.audioSource, recordingConfig.samplingRate, recordingConfig.channelConfig, recordingConfig.audioFormat, bufferSize)
-            recorder = NoteRecorder(recordingResults, audioRecorder, bufferSize)
-            recogniser = NoteRecogniser(recordingResults, recordingConfig.samplingRate)
+            recorder = NoteRecorder(recordingResults, audioRecorder, bufferSize, recordingConfig)
+            recogniser = NoteRecogniser(recordingResults, recordingConfig)
 
             mAudioRecordThread = Thread { recorder?.start() }
             mAudioRecognitionThread = Thread { doRecognition() }
         }
     }
 
-    fun doRecognition() {
+    private fun doRecognition() {
         while(true) {
             val note =  recogniser?.getNote()
             if(note != null) {
