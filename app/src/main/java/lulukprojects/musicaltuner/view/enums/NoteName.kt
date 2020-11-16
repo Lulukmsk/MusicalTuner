@@ -3,20 +3,20 @@ package lulukprojects.musicaltuner.view.enums
 import lulukprojects.musicaltuner.view.Interface.IKnowNextNoteName
 import lulukprojects.musicaltuner.view.Interface.IKnowPreviousNoteName
 
-enum class NoteNames : IKnowNextNoteName, IKnowPreviousNoteName {
+enum class NoteName : IKnowNextNoteName, IKnowPreviousNoteName {
     C {
-        override fun getNextNoteName(): NoteNames {
+        override fun getNextNoteName(): NoteName {
             return CSharp
         }
-        override fun getPreviousNoteName(): NoteNames {
+        override fun getPreviousNoteName(): NoteName {
             return B
         }
     },
     CSharp {
-        override fun getNextNoteName(): NoteNames {
+        override fun getNextNoteName(): NoteName {
             return D
         }
-        override fun getPreviousNoteName(): NoteNames {
+        override fun getPreviousNoteName(): NoteName {
             return C
         }
 
@@ -25,18 +25,18 @@ enum class NoteNames : IKnowNextNoteName, IKnowPreviousNoteName {
         }
     },
     D {
-        override fun getNextNoteName(): NoteNames {
+        override fun getNextNoteName(): NoteName {
             return DSharp
         }
-        override fun getPreviousNoteName(): NoteNames {
+        override fun getPreviousNoteName(): NoteName {
             return CSharp
         }
     },
     DSharp {
-        override fun getNextNoteName(): NoteNames {
+        override fun getNextNoteName(): NoteName {
             return E
         }
-        override fun getPreviousNoteName(): NoteNames {
+        override fun getPreviousNoteName(): NoteName {
             return D
         }
         override fun toString(): String {
@@ -44,26 +44,26 @@ enum class NoteNames : IKnowNextNoteName, IKnowPreviousNoteName {
         }
     },
     E {
-        override fun getNextNoteName(): NoteNames {
+        override fun getNextNoteName(): NoteName {
             return F
         }
-        override fun getPreviousNoteName(): NoteNames {
+        override fun getPreviousNoteName(): NoteName {
             return DSharp
         }
     },
     F {
-        override fun getNextNoteName(): NoteNames {
+        override fun getNextNoteName(): NoteName {
             return FSharp
         }
-        override fun getPreviousNoteName(): NoteNames {
+        override fun getPreviousNoteName(): NoteName {
             return E
         }
     },
     FSharp {
-        override fun getNextNoteName(): NoteNames {
+        override fun getNextNoteName(): NoteName {
             return G
         }
-        override fun getPreviousNoteName(): NoteNames {
+        override fun getPreviousNoteName(): NoteName {
             return F
         }
         override fun toString(): String {
@@ -71,18 +71,18 @@ enum class NoteNames : IKnowNextNoteName, IKnowPreviousNoteName {
         }
     },
     G {
-        override fun getNextNoteName(): NoteNames {
+        override fun getNextNoteName(): NoteName {
             return GSharp
         }
-        override fun getPreviousNoteName(): NoteNames {
+        override fun getPreviousNoteName(): NoteName {
             return FSharp
         }
     },
     GSharp {
-        override fun getNextNoteName(): NoteNames {
+        override fun getNextNoteName(): NoteName {
             return A
         }
-        override fun getPreviousNoteName(): NoteNames {
+        override fun getPreviousNoteName(): NoteName {
             return G
         }
         override fun toString(): String {
@@ -90,18 +90,18 @@ enum class NoteNames : IKnowNextNoteName, IKnowPreviousNoteName {
         }
     },
     A {
-        override fun getNextNoteName(): NoteNames {
+        override fun getNextNoteName(): NoteName {
             return ASharp
         }
-        override fun getPreviousNoteName(): NoteNames {
+        override fun getPreviousNoteName(): NoteName {
             return GSharp
         }
     },
     ASharp {
-        override fun getNextNoteName(): NoteNames {
+        override fun getNextNoteName(): NoteName {
             return B
         }
-        override fun getPreviousNoteName(): NoteNames {
+        override fun getPreviousNoteName(): NoteName {
             return A
         }
         override fun toString(): String {
@@ -109,10 +109,10 @@ enum class NoteNames : IKnowNextNoteName, IKnowPreviousNoteName {
         }
     },
     B {
-        override fun getNextNoteName(): NoteNames {
+        override fun getNextNoteName(): NoteName {
             return C
         }
-        override fun getPreviousNoteName(): NoteNames {
+        override fun getPreviousNoteName(): NoteName {
             return ASharp
         }
     },

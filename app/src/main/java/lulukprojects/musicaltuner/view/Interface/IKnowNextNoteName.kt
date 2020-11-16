@@ -1,7 +1,7 @@
 package lulukprojects.musicaltuner.view.Interface
 
-import lulukprojects.musicaltuner.view.enums.NoteNames
+import lulukprojects.musicaltuner.view.enums.NoteName
 
 interface IKnowNextNoteName {
-    fun getNextNoteName() : NoteNames
+    fun getNextNoteName() : NoteName
 }

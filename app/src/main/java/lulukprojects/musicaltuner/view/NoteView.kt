@@ -8,8 +8,10 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import lulukprojects.musicaltuner.view.container.BarCounters
+import lulukprojects.musicaltuner.view.container.DrawingDescriptor
 import lulukprojects.musicaltuner.view.container.SoundNote
-import lulukprojects.musicaltuner.view.enums.DrawBarsStyle
+import lulukprojects.musicaltuner.view.enums.DrawBars
+import lulukprojects.musicaltuner.view.enums.NoteState
 import lulukprojects.musicaltuner.view.helper.NotesHelper
 
 
@@ -66,103 +68,46 @@ class NoteView : View {
         val nextNoteDistance = contentHeight.toDouble()/3
 
         var closestNote = NotesHelper.instance.getClosestNote(noteValue)
-
+        var descriptor : DrawingDescriptor? = null
         if(closestNote != null) {
-            var goDown: Boolean = false;
-            var upperNote: SoundNote? = null
-            var lowerNote: SoundNote? = null
-            if (closestNote.noteValue >= noteValue) {
-                upperNote = closestNote
-                lowerNote = NotesHelper.instance.getPreviousNote(closestNote)
-            }
-            else {
-                goDown = true
-                lowerNote = closestNote
-                upperNote = NotesHelper.instance.getNextNote(closestNote)
-            }
-
-            if(upperNote != null && lowerNote != null) {
-                val noteDistance = upperNote.noteValue - lowerNote.noteValue
-                val distanceToUpper = upperNote.noteValue - noteValue
-                val upperY = middleY - nextNoteDistance * distanceToUpper / noteDistance
-
-                drawFromNote(
-                    canvas,
-                    contentHeight.toDouble(),
-                    contentWidth.toDouble(),
-                    upperNote,
-                    upperY,
-                    nextNoteDistance,
-                    DrawBarsStyle.Normal
-                )
-            }
-            else if(upperNote != null && lowerNote == null) {
-                val noteDistance = upperNote.noteValue
-                val distanceToUpper = upperNote.noteValue - noteValue
-                val upperY = middleY - nextNoteDistance * distanceToUpper / noteDistance
-
-                drawFromNote(
-                    canvas,
-                    contentHeight.toDouble(),
-                    contentWidth.toDouble(),
-                    upperNote,
-                    upperY,
-                    nextNoteDistance,
-                    DrawBarsStyle.NoLower
-                )
-            }
-            else if(upperNote == null && lowerNote != null) {
-                val noteDistance = lowerNote.noteValue - (NotesHelper.instance.getPreviousNote(
-                    lowerNote
-                )?.noteValue
-                    ?: lowerNote.noteValue - 16)
-                var distanceToLower = noteValue - lowerNote.noteValue
-                var lowerY = middleY + nextNoteDistance * distanceToLower / noteDistance
-
-                drawFromNote(
-                    canvas,
-                    contentHeight.toDouble(),
-                    contentWidth.toDouble(),
-                    lowerNote,
-                    lowerY,
-                    nextNoteDistance,
-                    DrawBarsStyle.NoUpper
-                )
-            }
+            descriptor = DrawingDescriptor(closestNote, noteValue, middleY, nextNoteDistance)
+            drawFromNote(
+                canvas,
+                contentHeight.toDouble(),
+                contentWidth.toDouble(),
+                descriptor
+            )
         }
 
         // Draw middle line
-        canvas.drawLine(
-            paddingLeft.toFloat(),
-            middleY.toFloat(),
-            contentWidth.toFloat(),
-            middleY.toFloat(),
-            mainPaint
-        )
+        if(descriptor != null)
+        {
+            drawMainValue(canvas, descriptor, middleY, contentWidth, paddingLeft)
+        }
     }
 
-    private fun drawFromNote(canvas: Canvas, maxHeight: Double, maxWidth: Double, note: SoundNote?, noteY: Double, nextNoteDistance: Double, style: DrawBarsStyle) {
+    private fun drawFromNote(canvas : Canvas, maxHeight : Double, maxWidth : Double, descriptor : DrawingDescriptor) {
         // Draw Note Line
-        drawNote(canvas, maxWidth, note, noteY)
+        drawNote(canvas, maxWidth, descriptor.note, descriptor.noteY)
 
         // Draw lines and bars that are lower then current note
         var barCounter = BarCounters(30)
-        barCounter.note = note
-        barCounter.nextBarY = noteY + barCounter.stepDistance
-        barCounter.stepDistance = nextNoteDistance/barCounter.steps
+        barCounter.note = descriptor.note
+        barCounter.nextBarY = descriptor.noteY + barCounter.stepDistance
+        barCounter.stepDistance = descriptor.nextNoteDistance/barCounter.steps
 
         while (barCounter.nextBarY < maxHeight){
-            drawNoteBars(canvas, maxWidth, barCounter, style == DrawBarsStyle.NoLower, false)
+            drawNoteBars(canvas, maxWidth, barCounter, descriptor.drawBars == DrawBars.NoLower, false)
         }
 
         // Draw lines and bars that are higher then current note
-        barCounter.note = note
-        barCounter.nextBarY = noteY - barCounter.stepDistance
+        barCounter.note = descriptor.note
+        barCounter.nextBarY = descriptor.noteY - barCounter.stepDistance
         barCounter.stepDistance = -barCounter.stepDistance
         barCounter.smallBarsCounter = 0
 
         while (barCounter.nextBarY > 0){
-            drawNoteBars(canvas, maxWidth, barCounter, style == DrawBarsStyle.NoUpper, true)
+            drawNoteBars(canvas, maxWidth, barCounter, descriptor.drawBars == DrawBars.NoUpper, true)
         }
     }
 
@@ -221,14 +166,34 @@ class NoteView : View {
             itemsPaint)
     }
 
-    private fun setTextSize(paint: Paint, desiredWidth: Float, text: String) {
+    private fun drawMainValue(canvas: Canvas, descriptor : DrawingDescriptor, middleY : Double, contentWidth : Int, paddingLeft : Int) {
+        changeMainPaintToMatchState(descriptor.noteState)
+        canvas.drawLine(
+            paddingLeft.toFloat(),
+            middleY.toFloat(),
+            contentWidth.toFloat(),
+            middleY.toFloat(),
+            mainPaint
+        )
+    }
+
+    private fun changeMainPaintToMatchState(noteState : NoteState) {
+        when(noteState){
+            NoteState.CloseToPerfect -> { mainPaint.color = Color.GREEN }
+            NoteState.LittleLow, NoteState.LittleHigh -> { mainPaint.color = Color.YELLOW }
+            NoteState.Low, NoteState.High-> { mainPaint.color = Color.argb(255,255, 165, 0) }
+            NoteState.TooLow, NoteState.TooHigh -> { mainPaint.color = Color.RED }
+        }
+    }
+
+    private fun setTextSize(paint : Paint, desiredWidth : Float, text : String) {
         paint.textSize = 48f
         val bounds = Rect()
         paint.getTextBounds(text, 0, text.length, bounds)
         paint.textSize = paint.textSize * desiredWidth / bounds.width()
     }
 
-    private fun drawBar(canvas: Canvas, maxWidth: Double, barY: Double){
+    private fun drawBar(canvas : Canvas, maxWidth : Double, barY : Double){
         canvas.drawLine(
             paddingLeft.toFloat(),
             barY.toFloat(),

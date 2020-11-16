@@ -1,6 +1,6 @@
 package lulukprojects.musicaltuner.view.enums
 
-enum class DrawBarsStyle{
+enum class DrawBars{
     Normal,
     NoUpper,
     NoLower
