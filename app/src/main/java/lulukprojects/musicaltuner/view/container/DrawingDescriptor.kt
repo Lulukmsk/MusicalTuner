@@ -5,19 +5,14 @@ import lulukprojects.musicaltuner.view.enums.NoteState
 import lulukprojects.musicaltuner.view.helper.NotesHelper
 import kotlin.math.abs
 
-class DrawingDescriptor//Get lower and upper notes and flow direction
-
-//Get noteY and distances
-//Get note state
-    (closestNote: SoundNote, noteValue: Double, middleY: Double, var nextNoteDistance: Double) {
-
+class DrawingDescriptor(closestNote: SoundNote, noteValue: Double, middleY: Double, var nextNoteDistance: Double) {
     var drawBars : DrawBars = DrawBars.Normal
     var noteState : NoteState
-
     var note : SoundNote = closestNote
     var noteY : Double
 
     init {
+        //Get lower and upper notes and flow direction
         var closestNoteIsDown = false
         val upperNote: SoundNote?
         val lowerNote: SoundNote?
@@ -31,6 +26,8 @@ class DrawingDescriptor//Get lower and upper notes and flow direction
 
             closestNoteIsDown = true
         }
+
+        //Get noteY and distances
         var noteDistance = 1.0
         var distanceToNote = 1.0
         if(upperNote != null && lowerNote != null) {
@@ -51,6 +48,7 @@ class DrawingDescriptor//Get lower and upper notes and flow direction
             drawBars = DrawBars.NoUpper
         }
         noteY = middleY - nextNoteDistance * distanceToNote / noteDistance
+        //Get note state
         noteState = getNoteState(closestNoteIsDown, abs( closestNote.noteValue - noteValue), noteDistance / 2.0)
     }
 

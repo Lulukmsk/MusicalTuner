@@ -1,8 +1,7 @@
 package lulukprojects.musicaltuner.view.helper
 
-import lulukprojects.musicaltuner.view.enums.NoteName
 import lulukprojects.musicaltuner.view.container.SoundNote
-import lulukprojects.musicaltuner.view.enums.NoteState
+import lulukprojects.musicaltuner.view.enums.NoteName
 import kotlin.math.abs
 
 class NotesHelper {
@@ -15,7 +14,7 @@ class NotesHelper {
         instance = this
     }
 
-    private val chromaticScale = listOf<Pair<Double, NoteName>>(16.351 to NoteName.C, 17.324 to NoteName.CSharp,
+    private val chromaticScale = listOf(16.351 to NoteName.C, 17.324 to NoteName.CSharp,
         18.354 to NoteName.D, 19.445 to NoteName.DSharp, 20.601 to NoteName.E,
         21.827 to NoteName.F, 23.124 to NoteName.FSharp, 24.499 to NoteName.G,
         25.956 to NoteName.GSharp, 27.5 to NoteName.A, 29.135 to NoteName.ASharp,
