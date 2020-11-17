@@ -54,7 +54,7 @@ class DrawingDescriptor(closestNote: SoundNote, noteValue: Double, middleY: Doub
 
     private fun getNoteState(closestNoteIsDown : Boolean, targetDistance : Double, noteDistance : Double) : NoteState {
         val rate = targetDistance / noteDistance * 100.0
-        return if(rate < 2.0)
+        return if(rate < 5)
             NoteState.CloseToPerfect
         else if (rate < 25)
             if(closestNoteIsDown) NoteState.LittleHigh else NoteState.LittleLow
