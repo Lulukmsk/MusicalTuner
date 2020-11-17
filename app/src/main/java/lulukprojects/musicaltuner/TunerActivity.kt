@@ -52,7 +52,7 @@ class TunerActivity : AppCompatActivity() {
             recorder = NoteRecorder(recordingResults, audioRecorder, bufferSize, recordingConfig)
             recogniser = NoteRecogniser(recordingResults, recordingConfig)
 
-            mAudioRecordThread = Thread { recorder?.start() }
+            mAudioRecordThread = Thread { recorder?.record() }
             mAudioRecognitionThread = Thread { doRecognition() }
         }
     }
@@ -68,14 +68,15 @@ class TunerActivity : AppCompatActivity() {
     }
     override fun onResume() {
         super.onResume()
+        recorder?.start()
         mAudioRecordThread?.start()
         mAudioRecognitionThread?.start()
     }
 
     override fun onPause() {
         super.onPause()
-        mAudioRecordThread?.stop()
+        mAudioRecognitionThread?.interrupt()
+        mAudioRecordThread?.interrupt()
         recorder?.stop()
-        mAudioRecognitionThread?.stop()
     }
 }

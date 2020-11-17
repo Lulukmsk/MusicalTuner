@@ -17,8 +17,8 @@ class NoteRecogniser(
     private var interpolator : UnivariateInterpolator =  SplineInterpolator()
 
     fun getNote() : Double {
-        val ret : Double
-        while (true) {
+        var ret = 0.0
+        while (!Thread.currentThread().isInterrupted) {
             if(samplingResults.size >= recordingConf.samplingCut) {
                 val data =  samplingResults.toTypedArray().clone()
                 samplingResults.clear()
