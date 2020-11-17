@@ -2,10 +2,10 @@ package lulukprojects.musicaltuner.view.container
 
 import lulukprojects.musicaltuner.view.enums.NoteName
 
-class SoundNote {
+class SoundNote(noteName: NoteName, noteValue: Double) {
 
-    private lateinit var _noteName : NoteName
-    private var _noteValue : Double = 0.0
+    private var _noteName : NoteName = noteName
+    private var _noteValue : Double = noteValue
 
     var noteName : NoteName
         get() = _noteName
@@ -19,8 +19,4 @@ class SoundNote {
             _noteValue = value
         }
 
-    constructor(noteName: NoteName, noteValue: Double){
-        _noteName = noteName
-        _noteValue = noteValue
-    }
 }

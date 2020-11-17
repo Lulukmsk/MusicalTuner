@@ -1,5 +1,6 @@
 package lulukprojects.musicaltuner.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -53,6 +54,7 @@ class NoteView : View {
         directionSlowPaint.color = Color.BLUE
     }
 
+    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -67,7 +69,7 @@ class NoteView : View {
         val middleY = (paddingTop + contentHeight.toDouble()/2)
         val nextNoteDistance = contentHeight.toDouble()/3
 
-        var closestNote = NotesHelper.instance.getClosestNote(noteValue)
+        val closestNote = NotesHelper.instance.getClosestNote(noteValue)
         var descriptor : DrawingDescriptor? = null
         if(closestNote != null) {
             descriptor = DrawingDescriptor(closestNote, noteValue, middleY, nextNoteDistance)
@@ -91,7 +93,7 @@ class NoteView : View {
         drawNote(canvas, maxWidth, descriptor.note, descriptor.noteY)
 
         // Draw lines and bars that are lower then current note
-        var barCounter = BarCounters(30)
+        val barCounter = BarCounters(30)
         barCounter.note = descriptor.note
         barCounter.nextBarY = descriptor.noteY + barCounter.stepDistance
         barCounter.stepDistance = descriptor.nextNoteDistance/barCounter.steps
@@ -114,7 +116,7 @@ class NoteView : View {
     private fun drawNoteBars(canvas: Canvas, maxWidth: Double, barCounter: BarCounters, noNoteBars: Boolean, takeNextNote: Boolean){
         barCounter.smallBarsCounter += 1
         if (barCounter.smallBarsCounter == barCounter.steps + 1 && barCounter.note != null && !noNoteBars) {
-            var tmpNote : SoundNote? = if (takeNextNote) NotesHelper.instance.getNextNote(barCounter.note!!) else NotesHelper.instance.getPreviousNote(barCounter.note!!)
+            val tmpNote : SoundNote? = if (takeNextNote) NotesHelper.instance.getNextNote(barCounter.note!!) else NotesHelper.instance.getPreviousNote(barCounter.note!!)
             if (tmpNote != null) {
                 barCounter.note = tmpNote
                 drawNote(canvas, maxWidth, barCounter.note, barCounter.nextBarY)

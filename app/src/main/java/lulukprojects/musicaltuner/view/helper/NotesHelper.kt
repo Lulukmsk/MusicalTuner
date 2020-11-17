@@ -61,14 +61,14 @@ class NotesHelper {
 
     fun getClosestNote(noteValue : Double) : SoundNote?
     {
-        var min = chromaticScale.minByOrNull { it -> abs(noteValue - it.first) }
+        val min = chromaticScale.minByOrNull { it -> abs(noteValue - it.first) }
         return if(min != null) SoundNote(min.second, min.first) else null
     }
 
     fun getNextNote(note : SoundNote) : SoundNote?
     {
         var next : SoundNote? = null
-        var current = chromaticScaleValues.binarySearch(note.noteValue)
+        val current = chromaticScaleValues.binarySearch(note.noteValue)
         if (current >= 0 && chromaticScaleValues.count() > current + 1) {
             next = SoundNote(note.noteName.getNextNoteName(), chromaticScaleValues[current + 1])
         }
@@ -79,7 +79,7 @@ class NotesHelper {
     {
         var next : SoundNote? = null
         if(note != null) {
-            var current = chromaticScaleValues.binarySearch(note.noteValue)
+            val current = chromaticScaleValues.binarySearch(note.noteValue)
             if (current > 0) {
                 next = SoundNote(note.noteName.getPreviousNoteName(), chromaticScaleValues[current - 1])
             }

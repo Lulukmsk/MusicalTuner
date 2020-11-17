@@ -3,14 +3,13 @@ package lulukprojects.musicaltuner
 import android.Manifest
 import android.media.AudioManager
 import android.media.AudioRecord
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_tuner.*
 import lulukprojects.musicaltuner.recognition.NoteRecogniser
 import lulukprojects.musicaltuner.recognition.NoteRecorder
 import lulukprojects.musicaltuner.recognition.RecordingConfiguration
 import lulukprojects.musicaltuner.requester.PermissionRequester
-import lulukprojects.musicaltuner.view.container.SoundNote
 import java.util.*
 
 class TunerActivity : AppCompatActivity() {

@@ -2,26 +2,20 @@ package lulukprojects.musicaltuner.recognition
 
 import android.media.AudioRecord
 
-class NoteRecorder {
-    private var samplingResults : MutableList<Short>
-    private var recorderInternal : AudioRecord
-    private var bufferSize : Int
-    private var recordingConf : RecordingConfiguration
-
-    constructor(samplingResults  : MutableList<Short>, recorder : AudioRecord, bufferSize : Int, recordingConf: RecordingConfiguration) {
-        this.bufferSize = bufferSize
-        recorderInternal = recorder
-        this.samplingResults = samplingResults
-        this.recordingConf = recordingConf
-    }
+class NoteRecorder(
+    private var samplingResults: MutableList<Short>,
+    private var recorder: AudioRecord,
+    private var bufferSize: Int,
+    private var recordingConf: RecordingConfiguration
+) {
 
     fun start() {
-        var buffer = ShortArray(bufferSize / 4)
-        recorderInternal.startRecording()
+        val buffer = ShortArray(bufferSize / 4)
+        recorder.startRecording()
         while (true) {
             if(samplingResults.size < this.recordingConf.samplingCut) {
                 while (samplingResults.size < this.recordingConf.samplingCut) {
-                    recorderInternal.read(buffer, 0, bufferSize / 4)
+                    recorder.read(buffer, 0, bufferSize / 4)
                     samplingResults.addAll(buffer.toList())
                 }
             }
@@ -32,6 +26,6 @@ class NoteRecorder {
     }
 
     fun stop() {
-        recorderInternal.stop()
+        recorder.stop()
     }
 }
